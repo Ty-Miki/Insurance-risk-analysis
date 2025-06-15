@@ -3,7 +3,9 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 import logging
-from typing import List, Union
+from typing import List, Union, Dict, Optional
+
+from .aggregate_data import compute_monthly_aggregates
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -105,3 +107,40 @@ class PlotGenerator:
 
         except Exception as e:
             logging.error(f"Error generating grouped bar chart for {column} by {group_by}: {e}")
+
+    def plot_monthly_trends(
+        self,
+        df: pd.DataFrame,
+        date_col: str,
+        agg_config: Dict[str, str],
+        title_map: Optional[Dict[str, str]] = None
+    ):
+        """
+        Plots monthly trends as line charts for each specified column aggregation.
+
+        Parameters:
+            df (pd.DataFrame): The input DataFrame.
+            date_col (str): The name of the datetime column (e.g., 'TransactionMonth').
+            agg_config (Dict[str, str]): Column-to-aggregation map for monthly aggregation.
+            title_map (Optional[Dict[str, str]]): Optional custom titles for each subplot.
+        """
+        try:
+            monthly = compute_monthly_aggregates(df, date_col, agg_config)
+            n = len(agg_config)
+            fig, axes = plt.subplots(n, 1, figsize=(10, 4 * n), sharex=True)
+            axes = axes if isinstance(axes, np.ndarray) else [axes]
+
+            for i, (col, _) in enumerate(agg_config.items()):
+                sns.lineplot(data=monthly, x="Month", y=col, ax=axes[i])
+                title = title_map.get(col, col) if title_map else f"Monthly Trend of {col}"
+                axes[i].set_title(title)
+                axes[i].set_ylabel(col)
+                axes[i].tick_params(axis='x', rotation=45)
+
+            plt.xlabel("Month")
+            plt.tight_layout()
+            plt.show()
+            logging.info("Monthly trend plots generated successfully.")
+
+        except Exception as e:
+            logging.error(f"Error generating monthly trend plots: {e}")
