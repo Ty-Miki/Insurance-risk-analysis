@@ -173,3 +173,21 @@ class PlotGenerator:
             logging.info(f"Horizontal bar chart '{title}' generated successfully.")
         except Exception as e:
             logging.error(f"Error generating horizontal bar chart '{title}': {e}")
+
+    def plot_correlation_matrix(self, df: pd.DataFrame):
+        """
+        Plots a heatmap of the correlation matrix for all numeric columns.
+        """
+        try:
+            numeric_df = df.select_dtypes(include=[np.number])
+            corr_matrix = numeric_df.corr()
+
+            plt.figure(figsize=(10, 8))
+            sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap="coolwarm", square=True)
+            plt.title("Correlation Matrix (Numeric Variables)")
+            plt.tight_layout()
+            plt.show()
+
+            logging.info("Correlation matrix heatmap generated successfully.")
+        except Exception as e:
+            logging.error(f"Error generating correlation matrix heatmap: {e}")
