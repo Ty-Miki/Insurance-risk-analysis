@@ -3,7 +3,7 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 import logging
-from typing import List, Union, Dict, Optional
+from typing import List, Union, Dict, Optional, Tuple
 
 from .aggregate_data import compute_monthly_aggregates
 
@@ -144,3 +144,32 @@ class PlotGenerator:
 
         except Exception as e:
             logging.error(f"Error generating monthly trend plots: {e}")
+
+    def plot_horizontal_bar(self, df: pd.DataFrame, title: str, x_col: str, y_col: Union[Tuple[str, ...], List[str]]):
+        """
+        Plots a horizontal bar chart for the given DataFrame.
+        
+        Parameters:
+            df (pd.DataFrame): The data to plot.
+            title (str): Title of the plot.
+            x_col (str): Column name for the x-axis (usually numerical).
+            y_col (Union[Tuple[str], List[str]]): Column name(s) for the y-axis (usually categorical). 
+                If multiple, they will be concatenated into a single label.
+        """
+        try:
+            if isinstance(y_col, (tuple, list)):
+                df["__CombinedLabel__"] = df[list(y_col)].astype(str).agg(" ".join, axis=1)
+            else:
+                df["__CombinedLabel__"] = df[y_col].astype(str)
+            
+            plt.figure(figsize=(10, 6))
+            sns.barplot(data=df, x=x_col, y="__CombinedLabel__", hue="__CombinedLabel__", orient="h")
+            plt.title(title)
+            plt.xlabel(x_col)
+            plt.ylabel(" / ".join(y_col) if isinstance(y_col, (tuple, list)) else y_col)
+            plt.tight_layout()
+            plt.show()
+
+            logging.info(f"Horizontal bar chart '{title}' generated successfully.")
+        except Exception as e:
+            logging.error(f"Error generating horizontal bar chart '{title}': {e}")
