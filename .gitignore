@@ -194,4 +194,6 @@ cython_debug/
 .cursorindexingignore
 
 # Data
-data/
+data/*.db
+data/*.txt
+!data/*.dvc
