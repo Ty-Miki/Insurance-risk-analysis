@@ -191,3 +191,25 @@ class PlotGenerator:
             logging.info("Correlation matrix heatmap generated successfully.")
         except Exception as e:
             logging.error(f"Error generating correlation matrix heatmap: {e}")
+
+    def plot_scatter_by_category(self, df: pd.DataFrame, numeric_cols: List[str], categorical_cols: List[str]):
+        """
+        Plots scatter (strip) plots of numeric columns against categorical columns.
+
+        Parameters:
+            df (pd.DataFrame): Input dataframe
+            numeric_cols (List[str]): List of numeric columns to plot
+            categorical_cols (List[str]): List of categorical columns to plot against
+        """
+        try:
+            for cat_col in categorical_cols:
+                for num_col in numeric_cols:
+                    plt.figure(figsize=(10, 5))
+                    sns.stripplot(data=df, x=cat_col, y=num_col, jitter=0.2, alpha=0.5)
+                    plt.title(f"{num_col} vs. {cat_col}")
+                    plt.xticks(rotation=45)
+                    plt.tight_layout()
+                    plt.show()
+                    logging.info(f"Scatter plot for {num_col} vs. {cat_col} generated.")
+        except Exception as e:
+            logging.error(f"Error generating scatter plots: {e}")
