@@ -67,3 +67,41 @@ class PlotGenerator:
         
         plt.tight_layout()
         plt.show()
+
+    def plot_grouped_bar_chart(
+        self, 
+        df: pd.DataFrame, 
+        column: str, 
+        group_by: Union[str, List[str]], 
+        agg_func: str = "mean"
+    ):
+        """
+        Generates grouped bar charts for a numerical column after grouping by one or more categorical columns.
+
+        Parameters:
+            df (pd.DataFrame): The input DataFrame containing the data.
+            value_col (str): The numeric column to aggregate and plot.
+            group_cols (Union[str, List[str]]): One or more categorical columns to group by.
+            agg_func (str): Aggregation function to apply ('mean', 'sum', etc.). Default is 'mean'.
+        """
+        group_by = [group_by] if isinstance(group_by, str) else group_by
+        try:
+            grouped = df.groupby(group_by)[column].agg(agg_func).reset_index()
+
+            if len(group_by) == 1:
+                # Simple bar plot
+                sns.barplot(data=grouped, x=group_by[0], y=column)
+            else:
+                # Grouped bar plot with hue
+                sns.barplot(data=grouped, x=group_by[0], y=column, hue=group_by[1])
+
+            plt.title(f'{agg_func.capitalize()} of {column} grouped by {" and ".join(group_by)}')
+            plt.xlabel(group_by[0])
+            plt.ylabel(f'{agg_func.capitalize()} of {column}')
+            plt.xticks(rotation=45)
+            logging.info(f"Grouped bar chart for {column} by {group_by} created successfully.")
+            plt.tight_layout()
+            plt.show()
+
+        except Exception as e:
+            logging.error(f"Error generating grouped bar chart for {column} by {group_by}: {e}")
