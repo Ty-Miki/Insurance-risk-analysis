@@ -39,3 +39,31 @@ class PlotGenerator:
         
         plt.tight_layout()
         plt.show()
+
+    def plot_bar_chart(self, df: pd.DataFrame, columns: Union[str, List[str]]):
+        """
+        Generates bar charts for the specified categorical columns or value counts in the given DataFrame.
+        
+        Parameters:
+            df (pd.DataFrame): The input DataFrame containing the data.
+            columns (Union[str, List[str]]): Column name or list of column names to plot.
+        """
+        columns = [columns] if isinstance(columns, str) else columns
+        n = len(columns)
+        fig, axes = plt.subplots(1, n, figsize=(6 * n, 4))
+        axes = axes if isinstance(axes, np.ndarray) else [axes]
+
+        for ax, col in zip(axes, columns):
+            try:
+                value_counts = df[col].value_counts().sort_index()
+                sns.barplot(x=value_counts.index, y=value_counts.values, ax=ax)
+                ax.set_title(f'Bar Chart of {col}')
+                ax.set_xlabel(col)
+                ax.set_ylabel('Count')
+                ax.tick_params(axis='x', rotation=45)
+                logging.info(f"Bar chart for {col} created successfully.")
+            except Exception as e:
+                logging.error(f"Error generating bar chart for {col}: {e}")
+        
+        plt.tight_layout()
+        plt.show()
